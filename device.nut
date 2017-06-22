@@ -13,7 +13,7 @@ class CurrentSensor{
     GAUGE_RATIO = 20.0;
     ZERO_OFFSET = 120;
     MAX_ADC = 65535.0;
-    POLL_FREQ = 0.5;
+    POLL_INTERVAL = 0.5;
     _currentSensor = null;
     
     constructor(currentSensor) {
@@ -51,7 +51,7 @@ class CurrentSensor{
         local calcCurrent = voltageDiff*WINDING_RATIO;
         currentGauge = (currentGauge/GAUGE_RATIO);
         
-        
+        // Send the data to Conctr
         conctr.sendData({
             "current" : calcCurrent, "currentgauge": currentGauge.tointeger(),
         },function(error,response) {
@@ -62,13 +62,15 @@ class CurrentSensor{
             }
         }.bindenv(this));
         
+        // Debug Logs
         if (DEBUG){
             server.log("Our Current Gauge Shows:" + currentGauge);
             server.log("Our Sensor Voltage Reading is:" + voltageDiff);
             server.log("Our Current Reading is:" + calcCurrent);
         }
         
-        imp.wakeup(POLL_FREQ, readCurrent.bindenv(this));
+        // Repeat after POLL_INTERVAL
+        imp.wakeup(POLL_INTERVAL, readCurrent.bindenv(this));
         
     }
     
